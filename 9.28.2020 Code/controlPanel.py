@@ -2,6 +2,10 @@ from PyQt5.QtWidgets import QApplication, QWidget, QStyle, QStyleFactory, QLabel
 from PyQt5.QtCore import Qt
 import sys
 import socket
+import logging
+from datetime import datetime
+import psutil
+import time
 
 class Window(QWidget):
 
@@ -20,7 +24,7 @@ class Window(QWidget):
 
         self.setWindowTitle('Control Panel')
         self.resize(800, 600)
-
+        
     def createDeviceGroup(self):
 
         groupBox = QGroupBox("Select Devices")
@@ -44,6 +48,12 @@ class Window(QWidget):
     
     def createLogGroup(self):
         
+        now = datetime.now()
+        curTime = now.strftime("%H:%M:%S")
+        
+        logging.basicConfig(filename = "CP_Log_{}.log".format(curTime), level = logging.DEBUG)
+        logging.info("Start Time: {}".format(curTime))
+        
         groupBox = QGroupBox("Logs")
         
         log = QTextEdit()
@@ -62,6 +72,7 @@ class Window(QWidget):
         conn, addr = s.accept()
         print("Got connection from ", addr)
         output = "Got connection from {}".format(addr)
+        logging.info(output)
         conn.close()
         
         log.append(output)
@@ -71,9 +82,24 @@ class Window(QWidget):
         
         box.addStretch(1)    
         groupBox.setLayout(box)
+        
+        for i in range (0, 10):
+        
+            self.logFile()
+            
+        return groupBox        
 
-        return groupBox
-
+    def logFile(self):
+        
+        cpu = psutil.cpu_percent()
+        memDict = dict(psutil.virtual_memory()._asdict())
+        mem = psutil.virtual_memory().percent
+        
+        now = datetime.now()
+        curTime = now.strftime("%H:%M:%S")
+        
+        logging.info("Time: {}   CPU Usage: {}%   Memory Usage: {}%".format(curTime, cpu, mem))
+        
     def createEmptyGroup(self):
 
         groupBox = QGroupBox("Empty")
