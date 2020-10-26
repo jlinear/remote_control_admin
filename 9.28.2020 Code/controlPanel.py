@@ -88,15 +88,9 @@ class Window(QWidget):
         logging.info("Start Time: {}".format(curTime))
         
         while(True):
-        
-            cpu = psutil.cpu_percent()
-            memDict = dict(psutil.virtual_memory()._asdict())
-            mem = psutil.virtual_memory().percent
             
-            now = datetime.now()
-            curTime = now.strftime("%H:%M:%S")
-            
-            logging.info("Time: {}   CPU Usage: {}%   Memory Usage: {}%".format(curTime, cpu, mem))
+            # ERROR - can't access socket due to scoping
+            logging.info(s.recv)
         
             time.sleep(3)
         
