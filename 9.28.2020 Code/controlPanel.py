@@ -7,6 +7,7 @@ from datetime import datetime
 import psutil
 import time
 import threading
+import boto3
 
 class Window(QWidget):
 
@@ -18,7 +19,7 @@ class Window(QWidget):
 
         grid.addWidget(self.createDeviceGroup(), 0, 0)
         grid.addWidget(self.createLogGroup(), 1, 0)
-        grid.addWidget(self.createEmptyGroup(), 0, 1)
+        grid.addWidget(self.createAWSGroup(), 0, 1)
         grid.addWidget(self.createEmptyGroup(), 1, 1)
 
         self.setLayout(grid)
@@ -87,12 +88,54 @@ class Window(QWidget):
         logging.basicConfig(filename = "CP_Log_{}.log".format(curTime), level = logging.DEBUG)
         logging.info("Start Time: {}".format(curTime))
         
-        while(True):
+        #while(True):
             
             # ERROR - can't access socket due to scoping
-            logging.info(s.recv)
+            #logging.info(s.recv)
         
-            time.sleep(3)
+            #time.sleep(3)
+            
+    def createAWSGroup(self):
+        
+        groupBox = QGroupBox("AWS Status")
+        
+        log = QTextEdit()
+        log.setReadOnly(True)
+        log.setLineWrapMode(QTextEdit.NoWrap)
+        
+        box = QVBoxLayout()
+        box.addWidget(log)
+        
+        box.addStretch(1)    
+        groupBox.setLayout(box)
+        
+        client = boto3.client("cloudwatch")
+                
+        # List metrics through the pagination interface
+        paginator = client.get_paginator('list_metrics')
+        for response in paginator.paginate(Dimensions=[{'Name': 'LogGroupName'}],
+                                   MetricName='IncomingLogEvents',
+                                   Namespace='AWS/Logs'):
+            print(response['Metrics'])
+            log.append('Metrics')
+            
+        client2 = boto3.client("greengrass")
+        
+        # Get greengrass data
+        groupsResponse = client2.list_groups()
+        print(groupsResponse)
+        log.append(str(groupsResponse))
+        
+        deploymentsResponse = client2.list_deployments(
+         
+            GroupId = 'ca72ad0c-7eb2-4ed7-bc0e-dc957a2bacb6'
+            
+        )       
+            
+        print(deploymentsResponse)
+        log.append(str(deploymentsResponse))
+            
+        return groupBox    
         
     def createEmptyGroup(self):
 
@@ -108,8 +151,7 @@ app = QApplication(sys.argv)
 window = Window()
 
 t1 = threading.Thread(target = window.show, name = "t1")
-t2 = threading.Thread(target = window.logFile, name = "t2")
+#t2 = threading.Thread(target = window.logFile, name = "t2")
 t1.start()
-t2.start()
+#t2.start()
 app.exec_()
-
