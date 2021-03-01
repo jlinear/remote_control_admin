@@ -41,6 +41,8 @@ class Window(QWidget):
     
     # Function to create the box to select devices
     def createDeviceGroup(self):
+        
+        threading.Timer(3.0, self.createDeviceGroup).start()
 
         groupBox = QGroupBox("Select Devices")
         
