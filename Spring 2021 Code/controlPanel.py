@@ -7,7 +7,7 @@
 # SERVER: mlab_edge003
 # CLIENT: labpi001
 
-from PyQt5.QtWidgets import QApplication, QWidget, QStyle, QStyleFactory, QLabel, QTextEdit, QPushButton, QRadioButton, QMessageBox, QProgressBar, QGridLayout, QVBoxLayout, QGroupBox
+from PyQt5.QtWidgets import QFileDialog, QApplication, QWidget, QStyle, QStyleFactory, QLabel, QTextEdit, QPushButton, QRadioButton, QMessageBox, QProgressBar, QGridLayout, QVBoxLayout, QGroupBox
 from PyQt5.QtCore import Qt
 import sys
 import socket
@@ -31,7 +31,7 @@ class Window(QWidget):
 
         grid.addWidget(self.createLogGroup(), 1, 0)
         grid.addWidget(self.createAWSGroup(), 0, 1)
-        grid.addWidget(self.createEmptyGroup(), 1, 1)
+        grid.addWidget(self.createFTPGroup(), 1, 1)
         grid.addWidget(self.createDeviceGroup(), 0, 0)
 
         self.setLayout(grid)
@@ -216,6 +216,33 @@ class Window(QWidget):
         vbox.addStretch(1)
         groupBox.setLayout(vbox)
 
+        return groupBox
+    
+    # Function to create ftp box
+    def createFtpGroup(self):
+        
+        groupBox = QGroupBox("FTP")
+        
+        selectFile = QPushButton("Select File")
+        
+        def fileSelect(self):
+            
+            dlg = QFileDialog()
+            dlg.setFileMode(QFileDialog.AnyFile)
+            filenames = ''
+            
+            if dlg.exec_():
+                
+                filenames = dlg.selectedFiles()
+                
+            return filenames
+        
+        box = QVBoxLayout()
+        box.addWidget(selectFile)
+        selectFile.clicked.connect(fileSelect)
+        box.addStretch(1)
+        groupBox.setLayout(box)
+        
         return groupBox
 
 # Create GUI
