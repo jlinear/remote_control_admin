@@ -140,8 +140,16 @@ class Window(QWidget):
         #send files
         print("Sending file...")
         f = open("test.txt", 'rb')
-        while f.read(1024):     
-                conn.send(f.read(1024))
+        while True:     
+                
+                buf = f.read(1024)
+                
+                if buf == "":
+                    
+                    break
+                
+                conn.sendall(buf)
+        
         print("File sent")
         
         f.close()
