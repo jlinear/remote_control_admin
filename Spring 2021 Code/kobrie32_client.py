@@ -53,8 +53,21 @@ s = setupSocket()
 
 t1 = threading.Thread(target = logFile, name = "t1")
 t1.start()
+
+print("Receiving data...")
+
+f = open("test_copy.txt", 'wb')
+while True:
     
-reply = s.recv(1024)
+    buf = s.recv(1024)
+    if buf == "":
+        
+        break
+    
+    f.write(buf)
+    
+print("File received")
+f.close()
 
 print(reply.decode('utf-8'))
 
