@@ -136,7 +136,17 @@ class Window(QWidget):
         conn, addr = s.accept()
         print("Got connection from ", addr)
         output = "Got connection from {}".format(addr)
+        
+        #send files
+        print("Sending file...")
+        f = open("test.txt", 'rb')
+        while f.read(1024):     
+                conn.send(f.read(1024))
+        print("File sent")
+        
+        f.close()
         conn.close()
+        s.close()
         
         log.append(output)
         
