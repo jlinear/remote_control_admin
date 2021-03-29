@@ -16,6 +16,7 @@ from datetime import datetime
 import psutil
 import time
 import threading
+import os
 
 # Establish host and port
 host = '10.7.180.205'
@@ -53,22 +54,28 @@ s = setupSocket()
 
 t1 = threading.Thread(target = logFile, name = "t1")
 t1.start()
-
-print("Receiving data...")
-
-f = open("test_copy.txt", 'wb')
-while True:
     
-    buf = s.recv(1024)
-    if buf == "":
+print("Receiving data")
+
+#f = open("test_copy.txt", "wb")
+#f = open("test_pic.jpg", "wb")
+f = open("test_script.py", "wb")
+
+l = s.recv(1024)
+
+while(l):
         
-        break
-    
-    f.write(buf)
+    print("Receiving file...")
+    f.write(l)
+    l = s.recv(1024)
     
 print("File received")
+
 f.close()
 
-print(reply.decode('utf-8'))
-
 s.close()
+
+print("Running test script")
+exec(open("test_script.py").read())
+print("Script done running")
+
