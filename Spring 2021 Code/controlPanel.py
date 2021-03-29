@@ -31,7 +31,7 @@ class Window(QWidget):
 
         grid.addWidget(self.createLogGroup(), 1, 0)
         grid.addWidget(self.createAWSGroup(), 0, 1)
-        grid.addWidget(self.createFTPGroup(), 1, 1)
+        grid.addWidget(self.createFtpGroup(), 1, 1)
         grid.addWidget(self.createDeviceGroup(), 0, 0)
 
         self.setLayout(grid)
@@ -41,7 +41,7 @@ class Window(QWidget):
     
     # Function to create the box to select devices
     def createDeviceGroup(self):
-        
+
         threading.Timer(3.0, self.createDeviceGroup).start()
 
         groupBox = QGroupBox("Select Devices")
@@ -138,21 +138,20 @@ class Window(QWidget):
         output = "Got connection from {}".format(addr)
         
         #send files
-        print("Sending file...")
-        f = open("test.txt", 'rb')
-        while True:     
-                
-                buf = f.read(1024)
-                
-                if buf == "":
-                    
-                    break
-                
-                conn.sendall(buf)
+        #f = open("test.txt", "rb")
+        #f = open("test_pic.jpg", "rb")
+        f = open("test.py", "rb")
+          
+        l = f.read(1024)
         
-        print("File sent")
+        while(l):
+            
+            print("Sending file...")
+            conn.send(l)
+            l = f.read(1024)
         
-        f.close()
+        print("Done sending")
+        
         conn.close()
         s.close()
         
@@ -244,21 +243,21 @@ class Window(QWidget):
         selectFile = QPushButton("Select File")
         
         def fileSelect(self):
-            
+        
             dlg = QFileDialog()
             dlg.setFileMode(QFileDialog.AnyFile)
             filenames = ''
             
             if dlg.exec_():
-                
+               
                 filenames = dlg.selectedFiles()
                 
             return filenames
-        
+                
         box = QVBoxLayout()
         box.addWidget(selectFile)
         selectFile.clicked.connect(fileSelect)
-        box.addStretch(1)
+        box.addStretch(1)       
         groupBox.setLayout(box)
         
         return groupBox
@@ -270,5 +269,6 @@ window = Window()
 t1 = threading.Thread(target = window.show, name = "t1")
 #t2 = threading.Thread(target = window.logFile, name = "t2")
 t1.start()
+
 #t2.start()
 app.exec_()
