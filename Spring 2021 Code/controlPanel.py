@@ -18,6 +18,7 @@ import time
 import threading
 import boto3
 import os
+import pprint
 
 # Class for GUI
 class Window(QWidget):
@@ -139,8 +140,8 @@ class Window(QWidget):
         
         #send files
         #f = open("test.txt", "rb")
-        #f = open("test_pic.jpg", "rb")
-        f = open("test.py", "rb")
+        f = open("test_pic.jpg", "rb")
+        #f = open("test.py", "rb")
           
         l = f.read(1024)
         
@@ -203,15 +204,16 @@ class Window(QWidget):
         for response in paginator.paginate(Dimensions=[{'Name': 'LogGroupName'}],
                                    MetricName='IncomingLogEvents',
                                    Namespace='AWS/Logs'):
-            print(response['Metrics'])
+            pprint.pprint(response['Metrics'])
             log.append('Metrics')
             
         client2 = boto3.client("greengrass")
         
         # Get greengrass data
         groupsResponse = client2.list_groups()
-        print(groupsResponse)
+        pprint.pprint(groupsResponse)
         log.append(str(groupsResponse))
+        log.append("Connected Devices: {}, {}".format(groupsResponse['Groups'][0]['Name'], groupsResponse['Groups'][1]['Name']))
         
         deploymentsResponse = client2.list_deployments(
          
@@ -219,7 +221,7 @@ class Window(QWidget):
             
         )       
             
-        print(deploymentsResponse)
+        pprint.pprint(deploymentsResponse)
         log.append(str(deploymentsResponse))
             
         return groupBox    
