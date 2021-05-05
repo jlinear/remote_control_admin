@@ -19,6 +19,7 @@ import threading
 import boto3
 import os
 import pprint
+import matplotlib.pyplot as plt
 
 # Class for GUI
 class Window(QWidget):
@@ -47,6 +48,7 @@ class Window(QWidget):
 
         groupBox = QGroupBox("Select Devices")
         
+        # Get and display connection statuses
         r1 = os.system("ping -c 1 " + "10.7.162.108")
         r2 = os.system("ping -c 1 " + "10.7.111.190")
         r3 = os.system("ping -c 1 " + "10.7.159.211")
@@ -117,6 +119,7 @@ class Window(QWidget):
 
         return groupBox
     
+    # Function to establish connection and create the quadrant for general log data
     def createLogGroup(self):
         
         groupBox = QGroupBox("Logs")
@@ -138,7 +141,8 @@ class Window(QWidget):
         print("Got connection from ", addr)
         output = "Got connection from {}".format(addr)
         
-        #send files
+        # Send files
+        
         #f = open("test.txt", "rb")
         f = open("test_pic.jpg", "rb")
         #f = open("test.py", "rb")
@@ -166,7 +170,7 @@ class Window(QWidget):
         
         return groupBox        
 
-    # Function to make a box to display log data and create a log file
+    # Function to create a log file - Needs to be reimplemented on another thread
     def logFile(self):
         
         now = datetime.now()
@@ -205,14 +209,14 @@ class Window(QWidget):
                                    MetricName='IncomingLogEvents',
                                    Namespace='AWS/Logs'):
             pprint.pprint(response['Metrics'])
-            log.append('Metrics')
+            #log.append('Metrics')
             
         client2 = boto3.client("greengrass")
         
         # Get greengrass data
         groupsResponse = client2.list_groups()
         pprint.pprint(groupsResponse)
-        log.append(str(groupsResponse))
+        #log.append(str(groupsResponse))
         log.append("Connected Devices: {}, {}".format(groupsResponse['Groups'][0]['Name'], groupsResponse['Groups'][1]['Name']))
         
         deploymentsResponse = client2.list_deployments(
@@ -222,7 +226,7 @@ class Window(QWidget):
         )       
             
         pprint.pprint(deploymentsResponse)
-        log.append(str(deploymentsResponse))
+        #log.append(str(deploymentsResponse))
             
         return groupBox    
     
@@ -237,7 +241,7 @@ class Window(QWidget):
 
         return groupBox
     
-    # Function to create ftp box
+    # Function to create ftp box - needs to be integrated with file transfer logic
     def createFtpGroup(self):
         
         groupBox = QGroupBox("FTP")
@@ -263,14 +267,26 @@ class Window(QWidget):
         groupBox.setLayout(box)
         
         return groupBox
+    
+    # Function to create plot of AWS data
+    def plot(self):
+        
+        fig = plt.figure()
+        ax = fig.add_axes([0, 0, 1, 1])
+        xlabels = ["Groups", "Devices"]
+        yvals = [2, 2]
+        ax.bar(xlabels, yvals)
+        fig.suptitle("AWS Connection Data")
+        plt.show()
 
 # Create GUI
 app = QApplication(sys.argv)
 window = Window()
 
 t1 = threading.Thread(target = window.show, name = "t1")
-#t2 = threading.Thread(target = window.logFile, name = "t2")
-t1.start()
+t2 = threading.Thread(target = window.plot, name = "t2")
 
-#t2.start()
+t1.start()
+t2.start()
+
 app.exec_()
